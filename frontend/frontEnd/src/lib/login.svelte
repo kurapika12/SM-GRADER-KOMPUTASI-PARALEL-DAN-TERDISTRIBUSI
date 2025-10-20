@@ -1,20 +1,49 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   const dispatch = createEventDispatcher();
 
   let id = '';
   let error = '';
+  let loading = false;
+  let participants = [];
 
-  // Data dummy user
-  const users = [
-    { id: '001', name: 'ALAM', score: 80, correct: 8, wrong: 2 },
-    { id: '002', name: 'REYNALDO', score: 90, correct: 9, wrong: 1 }
-  ];
+  // Ambil data peserta dari backend saat komponen dimount
+  onMount(async () => {
+    loading = true;
+    error = '';
+    try {
+      const res = await fetch('http://localhost:3000/getAnswerParticipant');
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      }
+      participants = await res.json();
+    } catch (e) {
+      console.error('Gagal mengambil daftar peserta:', e);
+      error = 'Gagal mengambil data peserta. Pastikan backend berjalan di http://localhost:3000';
+    } finally {
+      loading = false;
+    }
+  });
 
   function handleLogin() {
-    const user = users.find(u => u.id === id);
+    const lookupId = id.trim();
+    if (!lookupId) {
+      error = 'Masukkan ID terlebih dahulu.';
+      return;
+    }
+
+    // Cari di data peserta yang diambil dari backend
+    const user = participants.find(u => String(u.id) === String(lookupId));
     if (user) {
-      dispatch('loginSuccess', { user });
+      // Normalisasikan objek user supaya konsisten dengan penggunaan di app
+      const payload = {
+        id: String(user.id),
+        name: user.name || user.nama || 'Peserta',
+        score: user.score ?? 0,
+        answers: user.answers ?? { correct: 0, wrong: 0 },
+        role: 'user'
+      };
+      dispatch('loginSuccess', { user: payload });
       error = '';
     } else {
       error = 'ID tidak ditemukan. Coba lagi.';

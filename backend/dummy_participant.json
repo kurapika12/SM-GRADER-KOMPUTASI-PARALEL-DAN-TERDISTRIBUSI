@@ -3,12 +3,18 @@
     "id": "001",
     "name": "ALAM",
     "score": 80,
-    "answers": { }
+    "answers": { "correct": 16, "wrong": 4 }
   },
   {
     "id": "002",
     "name": "REYNALDO",
     "score": 90,
-    "answers": { }
+    "answers": { "correct": 18, "wrong": 2 }
+  },
+  {
+    "id": "003",
+    "name": "NATALIA",
+    "score": 75,
+    "answers": { "correct": 15, "wrong": 5 }
   }
 ]

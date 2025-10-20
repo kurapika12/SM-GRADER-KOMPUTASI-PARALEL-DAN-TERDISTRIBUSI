@@ -2,29 +2,48 @@
   import svelteLogo from './assets/svelte.svg';
   import viteLogo from '/vite.svg';
   import Participant from './lib/Participant.svelte';
-
+  
   let currentUser = null;
   let userIdInput = '';
   let errorMsg = '';
   let view = 'home';
 
-  // Data dummy
-  const users = [
-    { id: "001", name: "ALAM", role: "user", score: 80, answers: { correct: 16, wrong: 4 } },
-    { id: "002", name: "REYNALDO", role: "user", score: 90, answers: { correct: 18, wrong: 2 } },
-    { id: "admin", name: "ADMIN PANEL", role: "admin", score: 0, answers: { correct: 0, wrong: 0 } }
-  ];
+  // Fungsi login: akan cek ke backend /api/grade?participantId=ID
+  // Tetap sediakan akses 'admin' lokal supaya admin bisa melihat halaman peserta
+  async function handleLogin() {
+    const id = userIdInput.trim();
+    if (!id) {
+      errorMsg = 'Masukkan ID terlebih dahulu';
+      return;
+    }
 
-  // Fungsi login
-  function handleLogin() {
-    const found = users.find(u => u.id === userIdInput.trim().toLowerCase());
-    if (found) {
-      currentUser = found;
+    // Special-case admin (tidak disimpan di backend dummy)
+    if (id.toLowerCase() === 'admin') {
+      currentUser = { id: 'admin', name: 'ADMIN PANEL', role: 'admin', score: 0, answers: { correct: 0, wrong: 0 } };
       errorMsg = '';
-      // Kalau admin langsung tampil halaman peserta
-      view = currentUser.role === 'admin' ? 'participant' : 'home';
-    } else {
-      errorMsg = '❌ ID tidak ditemukan! ';
+      view = 'participant';
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/grade?participantId=${encodeURIComponent(id)}`);
+      if (!res.ok) {
+        if (res.status === 404) {
+          errorMsg = '❌ ID tidak ditemukan!';
+        } else {
+          errorMsg = `Gagal mengambil data: ${res.status} ${res.statusText}`;
+        }
+        return;
+      }
+
+      const data = await res.json();
+      // Pastikan struktur sesuai yang dipakai di tampilan
+      currentUser = { ...data, role: 'user' };
+      errorMsg = '';
+      view = 'home';
+    } catch (e) {
+      console.error(e);
+      errorMsg = 'Gagal koneksi ke server. Pastikan backend berjalan di http://localhost:3000';
     }
   }
 
@@ -135,7 +154,6 @@
   }
 
   nav button:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.35); }
-  nav button.selected { background: rgba(255, 255, 255, 0.5); color: #1a1a1a; }
   .logout { background: #f44336; color: white; font-weight: 600; }
   .logout:hover { background: #d32f2f; }
 

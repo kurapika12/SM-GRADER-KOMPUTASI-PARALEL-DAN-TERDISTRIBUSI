@@ -1,24 +1,58 @@
 <script>
-  // Data peserta yang langsung tampil untuk admin
-  const participants = [
-    { id: "001", name: "ALAM", score: 80, correct: 16, wrong: 4 },
-    { id: "002", name: "REYNALDO", score: 90, correct: 18, wrong: 2 }
-  ];
+  import { onMount } from 'svelte';
+
+  let participants = [];
+  let loading = true;
+  let error = '';
+
+  // Ambil data peserta dari backend
+  async function loadParticipants() {
+    loading = true;
+    error = '';
+    try {
+      const res = await fetch('http://localhost:3000/getAnswerParticipant');
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const data = await res.json();
+      // Map ke format yang dipakai di tampilan
+      participants = data.map(p => ({
+        id: p.id,
+        name: p.name,
+        score: p.score,
+        correct: p.answers?.correct ?? 0,
+        wrong: p.answers?.wrong ?? 0
+      }));
+    } catch (e) {
+      console.error('Failed to load participants', e);
+      error = 'Gagal memuat data peserta. Pastikan backend berjalan di http://localhost:3000';
+    } finally {
+      loading = false;
+    }
+  }
+
+  onMount(() => {
+    loadParticipants();
+  });
 </script>
 
 <div class="participants-container">
   <h2>Data Peserta</h2>
-  <div class="cards">
-    {#each participants as p}
-      <div class="card">
-        <h3>{p.name}</h3>
-        <p><strong>ID:</strong> {p.id}</p>
-        <p><strong>Skor:</strong> {p.score}</p>
-        <p><strong>Jawaban Benar:</strong> {p.correct}</p>
-        <p><strong>Jawaban Salah:</strong> {p.wrong}</p>
-      </div>
-    {/each}
-  </div>
+  {#if loading}
+    <p>Memuat data peserta...</p>
+  {:else if error}
+    <p class="error">{error}</p>
+  {:else}
+    <div class="cards">
+      {#each participants as p}
+        <div class="card">
+          <h3>{p.name}</h3>
+          <p><strong>ID:</strong> {p.id}</p>
+          <p><strong>Skor:</strong> {p.score}</p>
+          <p><strong>Jawaban Benar:</strong> {p.correct}</p>
+          <p><strong>Jawaban Salah:</strong> {p.wrong}</p>
+        </div>
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <style>
