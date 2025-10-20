@@ -115,6 +115,45 @@
   {/if}
 </main>
 
+<!-- Geometry Dash style cube orbiting the main container -->
+<div class="cube-orbit" aria-hidden="true">
+  <div class="orbiter orbiter-1">
+    <svg class="cube cube-1" viewBox="0 0 200 200" width="110" height="110" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <rect x="40" y="40" width="120" height="120" rx="8" fill="#00bcd4" />
+        <rect x="40" y="88" width="120" height="16" fill="#007c91" opacity="0.9" />
+        <circle cx="88" cy="88" r="6" fill="#fff" />
+        <circle cx="112" cy="88" r="6" fill="#fff" />
+        <rect x="84" y="108" width="32" height="8" rx="4" fill="#ff6b6b" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="orbiter orbiter-2">
+    <svg class="cube cube-2" viewBox="0 0 200 200" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <rect x="40" y="40" width="120" height="120" rx="8" fill="#ff6f61" />
+        <rect x="40" y="88" width="120" height="16" fill="#cc4b3f" opacity="0.95" />
+        <circle cx="88" cy="88" r="6" fill="#fff" />
+        <circle cx="112" cy="88" r="6" fill="#fff" />
+        <rect x="84" y="108" width="32" height="8" rx="4" fill="#4a90e2" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="orbiter orbiter-3">
+    <svg class="cube cube-3" viewBox="0 0 200 200" width="70" height="70" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <rect x="40" y="40" width="120" height="120" rx="8" fill="#8e44ad" />
+        <rect x="40" y="88" width="120" height="16" fill="#6a2a8f" opacity="0.95" />
+        <circle cx="88" cy="88" r="6" fill="#fff" />
+        <circle cx="112" cy="88" r="6" fill="#fff" />
+        <rect x="84" y="108" width="32" height="8" rx="4" fill="#f1c40f" />
+      </g>
+    </svg>
+  </div>
+</div>
+
 <style>
   :global(body) {
   margin: 0;
@@ -215,4 +254,36 @@
   .stat-card.score { border-top: 4px solid #ff9800; }
 
   .title { font-size: 2rem; margin-bottom: 1rem; }
+
+  /* Ensure main content sits above the background animation */
+  main { position: relative; z-index: 1; }
+
+  /* Cube orbit animation (Geometry Dash style) */
+  .cube-orbit { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .orbiter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: 50% 50%;
+  }
+
+  /* different orbit radii and speeds */
+  .orbiter-1 { width: 220px; height: 220px; animation: orbit1 11s linear infinite; }
+  .orbiter-2 { width: 320px; height: 320px; animation: orbit2 16s linear infinite reverse; }
+  .orbiter-3 { width: 420px; height: 420px; animation: orbit3 22s linear infinite; }
+
+  .cube { position: absolute; left: 100%; top: 50%; transform: translate(-50%, -50%); filter: drop-shadow(0 8px 10px rgba(0,0,0,0.18)); }
+
+  .cube-1 { animation: cube-tilt-1 0.9s linear infinite; }
+  .cube-2 { animation: cube-tilt-2 1.1s linear infinite; }
+  .cube-3 { animation: cube-tilt-3 0.7s linear infinite; }
+
+  @keyframes orbit1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes orbit2 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes orbit3 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* cube tilt/rotate to simulate dynamic motion */
+  @keyframes cube-tilt-1 { 0% { transform: translate(-50%, -50%) rotate(0deg);} 50% { transform: translate(-50%, -50%) rotate(18deg);} 100% { transform: translate(-50%, -50%) rotate(0deg);} }
+  @keyframes cube-tilt-2 { 0% { transform: translate(-50%, -50%) rotate(0deg);} 50% { transform: translate(-50%, -50%) rotate(-18deg);} 100% { transform: translate(-50%, -50%) rotate(0deg);} }
+  @keyframes cube-tilt-3 { 0% { transform: translate(-50%, -50%) rotate(0deg);} 50% { transform: translate(-50%, -50%) rotate(28deg);} 100% { transform: translate(-50%, -50%) rotate(0deg);} }
 </style>
