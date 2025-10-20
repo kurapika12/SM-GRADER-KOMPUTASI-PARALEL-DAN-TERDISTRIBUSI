@@ -7,6 +7,8 @@ app = Flask(__name__)
 CORS(app)
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), 'dummy_participant.json')
+QUESTION_BANK = os.path.join(os.path.dirname(__file__), 'question_bank.json')
+QUESTION_DUMMY = os.path.join(os.path.dirname(__file__), 'question_dummy.json')
 
 
 def compute_score_from_answers(answers, fallback=0):
@@ -25,17 +27,62 @@ def compute_score_from_answers(answers, fallback=0):
         return round((correct / total) * 100, 2)
     return fallback
 
+
+def load_question_bank():
+    try:
+        with open(QUESTION_BANK, 'r') as f:
+            qlist = json.load(f)
+        # convert to map questId -> rightAnswer
+        qmap = {}
+        for q in qlist:
+            if isinstance(q, dict):
+                qid = q.get('questId') or q.get('quest_id')
+                right = q.get('rightAnswer') or q.get('rightAnswer'.lower())
+                if qid and right:
+                    qmap[str(qid)] = right
+        return qmap
+    except Exception:
+        return {}
+
+
+def grade_participant_answers(answers, question_map):
+    # answers: dict mapping questionId -> answer
+    correct = 0
+    wrong = 0
+    for qid, right in question_map.items():
+        user_ans = answers.get(qid)
+        if user_ans is None:
+            # skip unanswered
+            continue
+        if str(user_ans) == str(right):
+            correct += 1
+        else:
+            wrong += 1
+    score = compute_score_from_answers({'correct': correct, 'wrong': wrong})
+    return { 'correct': correct, 'wrong': wrong, 'score': score, 'lulus': True if score >= 60 else False }
+
 # === [GET] Ambil data peserta dari file dummy ===
 @app.route('/getAnswerParticipant', methods=['GET'])
 def get_answer_participant():
     try:
-        with open(DATA_FILE, 'r') as file:
-            data = json.load(file)
+        # load question bank and participants
+        qmap = load_question_bank()
+        with open(QUESTION_DUMMY, 'r') as f:
+            participants = json.load(f)
 
-        for p in data:
-            p['score'] = compute_score_from_answers(p.get('answers'), p.get('score', 0))
-
-        return jsonify(data)
+        graded = []
+        for p in participants:
+            ans = p.get('answers') or {}
+            res = grade_participant_answers(ans, qmap)
+            graded.append({
+                'id': p.get('_id') or p.get('noUjian') or p.get('id'),
+                'name': p.get('name'),
+                'answers': ans,
+                'score': res['score'],
+                'answersSummary': { 'correct': res['correct'], 'wrong': res['wrong'] },
+                'lulus': res['lulus']
+            })
+        return jsonify(graded)
     except Exception as e:
         return jsonify({"error": f"Gagal membaca data peserta: {str(e)}"}), 500
 
@@ -47,18 +94,24 @@ def get_participant_grade():
         return jsonify({"error": "Parameter participantId diperlukan"}), 400
     
     try:
-        with open(DATA_FILE, 'r') as file:
-            participants = json.load(file)
+        qmap = load_question_bank()
+        with open(QUESTION_DUMMY, 'r') as f:
+            participants = json.load(f)
 
-        # Cari peserta berdasarkan ID
-        participant = next((p for p in participants if str(p.get('id')) == str(participant_id)), None)
+        participant = next((p for p in participants if str(p.get('_id')) == str(participant_id) or str(p.get('noUjian')) == str(participant_id) or str(p.get('id')) == str(participant_id)), None)
         if not participant:
             return jsonify({"error": f"Peserta dengan ID {participant_id} tidak ditemukan"}), 404
 
-        # Hitung score berdasarkan answers (jika ada) menggunakan helper terpusat
-        participant['score'] = compute_score_from_answers(participant.get('answers'), participant.get('score', 0))
-
-        return jsonify(participant)
+        res = grade_participant_answers(participant.get('answers') or {}, qmap)
+        participant_out = {
+            'id': participant.get('_id') or participant.get('noUjian') or participant.get('id'),
+            'name': participant.get('name'),
+            'answers': participant.get('answers') or {},
+            'score': res['score'],
+            'answersSummary': { 'correct': res['correct'], 'wrong': res['wrong'] },
+            'lulus': res['lulus']
+        }
+        return jsonify(participant_out)
     except Exception as e:
         return jsonify({"error": f"Gagal membaca data: {str(e)}"}), 500
 
@@ -79,6 +132,17 @@ def calculate_grade():
 
     skor = round((benar / total) * 100, 2) if total > 0 else 0
     return jsonify({"score": skor, "total": total, "correct": benar})
+
+
+# === [GET] Return question bank ===
+@app.route('/questionBank', methods=['GET'])
+def get_question_bank():
+    try:
+        with open(QUESTION_BANK, 'r') as f:
+            qlist = json.load(f)
+        return jsonify(qlist)
+    except Exception as e:
+        return jsonify({"error": f"Gagal membaca question bank: {str(e)}"}), 500
 
 # === Root endpoint ===
 @app.route('/')

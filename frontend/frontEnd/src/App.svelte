@@ -37,8 +37,20 @@
       }
 
       const data = await res.json();
-      // Pastikan struktur sesuai yang dipakai di tampilan
-      currentUser = { ...data, role: 'user' };
+        // Normalisasikan struktur yang datang dari backend:
+        // backend returns `answers` (full map) and `answersSummary` (correct/wrong), plus `score` and `lulus`.
+        const normalized = {
+          id: data.id || data._id || id,
+          name: data.name || data.nama || 'Peserta',
+          score: Number(data.score) || 0,
+          answers: {
+            correct: Number(data.answersSummary?.correct ?? data.answers?.correct ?? 0),
+            wrong: Number(data.answersSummary?.wrong ?? data.answers?.wrong ?? 0)
+          },
+          lulus: Boolean(data.lulus),
+          _answers: data.answers || {}
+        };
+        currentUser = { ...normalized, role: 'user' };
       errorMsg = '';
       view = 'home';
     } catch (e) {
@@ -52,6 +64,28 @@
     currentUser = null;
     userIdInput = '';
     view = 'home';
+  }
+
+  // small helper: fetch question bank for user detail view
+  let questionBank = [];
+
+  async function ensureQuestionBank() {
+    if (questionBank.length > 0) return;
+    try {
+      const res = await fetch('http://localhost:3000/questionBank');
+      if (!res.ok) return;
+      questionBank = await res.json();
+    } catch (e) {
+      console.warn('Failed to load question bank for user detail', e);
+    }
+  }
+
+  function rightAnswerMap() {
+    const m = {};
+    for (const q of questionBank || []) {
+      if (q && (q.questId || q.quest_id)) m[q.questId || q.quest_id] = q.rightAnswer || q.right_answer;
+    }
+    return m;
   }
 </script>
 
@@ -89,6 +123,14 @@
     <!-- Dashboard user biasa -->
     {#if view === 'home' && currentUser.role !== 'admin'}
       <h1 class="title">Dashboard {currentUser.name}</h1>
+      <!-- Pass/Fail badge for the current user -->
+      <div class="user-status">
+        {#if currentUser.lulus}
+          <div class="status-badge pass">LULUS</div>
+        {:else}
+          <div class="status-badge fail">TIDAK LULUS</div>
+        {/if}
+      </div>
       <div class="dashboard">
         <div class="stat-card correct">
           <h2>{currentUser.answers.correct}</h2>
@@ -103,12 +145,34 @@
           <p>Skor Akhir</p>
         </div>
       </div>
+      <div class="user-detail-wrap">
+        <button class="detail-btn" on:click={async () => { currentUser._showDetails = !currentUser._showDetails; if (currentUser._showDetails) await ensureQuestionBank(); }}>
+          {currentUser._showDetails ? 'Sembunyikan Detail' : 'Lihat Detail' }
+        </button>
+        {#if currentUser._showDetails}
+          <div class="detail-panel">
+            {#if questionBank.length === 0}
+              <p class="muted">Detail soal tidak tersedia — question bank belum dimuat.</p>
+            {:else}
+              <div class="q-list">
+                {#each Object.keys(currentUser._answers || {}) as qid}
+                  <div class="q-row { (rightAnswerMap()[qid] !== undefined && String(currentUser._answers[qid]) !== String(rightAnswerMap()[qid])) ? 'wrong' : 'correct' }">
+                    <div class="q-id">{qid}</div>
+                    <div class="q-right">Benar: {rightAnswerMap()[qid] ?? '-'}</div>
+                    <div class="q-your">Jawaban: {currentUser._answers[qid] ?? '-'}</div>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/if}
+      </div>
     {/if}
 
     <!-- Halaman peserta untuk admin -->
     {#if view === 'participant' && currentUser.role === 'admin'}
       <h1 class="title">Halaman Peserta</h1>
-      <div class="card">
+      <div class="admin-panel">
         <Participant />
       </div>
     {/if}
@@ -255,8 +319,27 @@
 
   .title { font-size: 2rem; margin-bottom: 1rem; }
 
+  .user-status { display:flex; justify-content:center; margin-bottom: 1rem; }
+  .status-badge { padding: 0.5rem 1rem; border-radius: 999px; font-weight: 800; color: white; font-size: 0.95rem; }
+  .status-badge.pass { background: #4caf50; }
+  .status-badge.fail { background: #f44336; }
+
   /* Ensure main content sits above the background animation */
   main { position: relative; z-index: 1; }
+
+  /* user detail styling (reuse Participant styles) */
+  .user-detail-wrap { margin: 1rem auto; max-width: 760px; text-align: left; }
+  .user-detail-wrap .detail-btn { background: #2196f3; color: white; border: none; padding: 0.45rem 0.8rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .user-detail-wrap .detail-panel { margin-top: 0.8rem; max-height: 320px; overflow: auto; padding-right: 0.4rem; }
+  .user-detail-wrap .q-list { display: grid; gap: 0.5rem; }
+  .user-detail-wrap .q-row { display:flex; gap:0.6rem; align-items:center; padding:0.45rem; border-radius:8px; }
+  .user-detail-wrap .q-row.correct { background: rgba(76,175,80,0.06); }
+  .user-detail-wrap .q-row.wrong { background: rgba(244,67,54,0.06); }
+  .user-detail-wrap .q-id { width: 60px; font-weight:700; }
+  .user-detail-wrap .q-right { width: 120px; }
+
+  /* admin panel sizing tweaks */
+  .admin-panel { max-width: 1100px; margin: 0 auto; padding: 1rem; }
 
   /* Cube orbit animation (Geometry Dash style) */
   .cube-orbit { position: fixed; inset: 0; z-index: 0; pointer-events: none; }

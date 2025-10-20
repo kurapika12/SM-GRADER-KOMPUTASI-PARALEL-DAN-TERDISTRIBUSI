@@ -1,0 +1,123 @@
+﻿[
+  {
+    "difficulty": "medium",
+    "questId": "Q001",
+    "rightAnswer": "a",
+    "section": "Kuantitatif"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q002",
+    "rightAnswer": "b",
+    "section": "Kuantitatif"
+  },
+  {
+    "difficulty": "easy",
+    "questId": "Q003",
+    "rightAnswer": "c",
+    "section": "Kuantitatif"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q004",
+    "rightAnswer": "a",
+    "section": "Penalaran Umum"
+  },
+  {
+    "difficulty": "hard",
+    "questId": "Q005",
+    "rightAnswer": "d",
+    "section": "Penalaran Umum"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q006",
+    "rightAnswer": "b",
+    "section": "Kuantitatif"
+  },
+  {
+    "difficulty": "easy",
+    "questId": "Q007",
+    "rightAnswer": "a",
+    "section": "Verbal"
+  },
+  {
+    "difficulty": "hard",
+    "questId": "Q008",
+    "rightAnswer": "c",
+    "section": "Verbal"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q009",
+    "rightAnswer": "e",
+    "section": "Verbal"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q010",
+    "rightAnswer": "b",
+    "section": "Verbal"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q011",
+    "rightAnswer": "d",
+    "section": "Kuantitatif"
+  },
+  {
+    "difficulty": "easy",
+    "questId": "Q012",
+    "rightAnswer": "a",
+    "section": "Kuantitatif"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q013",
+    "rightAnswer": "b",
+    "section": "Penalaran Umum"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q014",
+    "rightAnswer": "c",
+    "section": "Penalaran Umum"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q015",
+    "rightAnswer": "a",
+    "section": "Kuantitatif"
+  },
+  {
+    "difficulty": "hard",
+    "questId": "Q016",
+    "rightAnswer": "e",
+    "section": "Verbal"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q017",
+    "rightAnswer": "c",
+    "section": "Kuantitatif"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q018",
+    "rightAnswer": "b",
+    "section": "Kuantitatif"
+  },
+  {
+    "difficulty": "medium",
+    "questId": "Q019",
+    "rightAnswer": "d",
+    "section": "Penalaran Umum"
+  },
+  {
+    "difficulty": "easy",
+    "questId": "Q020",
+    "rightAnswer": "a",
+    "section": "Penalaran Umum"
+  }
+]
+

@@ -39,8 +39,13 @@
       const payload = {
         id: String(user.id),
         name: user.name || user.nama || 'Peserta',
-        score: user.score ?? 0,
-        answers: user.answers ?? { correct: 0, wrong: 0 },
+        score: Number(user.score) || 0,
+        answers: {
+          correct: Number(user.answersSummary?.correct ?? user.answers?.correct ?? 0),
+          wrong: Number(user.answersSummary?.wrong ?? user.answers?.wrong ?? 0)
+        },
+        _answers: user.answers || {},
+        lulus: Boolean(user.lulus),
         role: 'user'
       };
       dispatch('loginSuccess', { user: payload });
