@@ -2,26 +2,22 @@
   {
     "id": "001",
     "name": "ALAM",
-    "score": 80,
     "answers": { "correct": 16, "wrong": 4 }
   },
   {
     "id": "002",
     "name": "REYNALDO",
-    "score": 90,
     "answers": { "correct": 18, "wrong": 2 }
   },
   {
     "id": "003",
     "name": "NATALIA",
-    "score": 75,
     "answers": { "correct": 15, "wrong": 5 }
   }
   ,
   {
     "id": "004",
     "name": "BUDI",
-    "score": 85,
     "answers": { "correct": 17, "wrong": 3 }
   }
 ]
