@@ -4,6 +4,8 @@
   let participants = [];
   let loading = true;
   let error = '';
+  // Sort order: true => descending (highest -> lowest), false => ascending
+  let sortDesc = true;
 
   // Ambil data peserta dari backend
   async function loadParticipants() {
@@ -17,16 +19,32 @@
       participants = data.map(p => ({
         id: p.id,
         name: p.name,
-        score: p.score,
+        score: Number(p.score) || 0,
         correct: p.answers?.correct ?? 0,
         wrong: p.answers?.wrong ?? 0
       }));
+      sortParticipants();
     } catch (e) {
       console.error('Failed to load participants', e);
       error = 'Gagal memuat data peserta. Pastikan backend berjalan di http://localhost:3000';
     } finally {
       loading = false;
     }
+  }
+
+  function sortParticipants() {
+    participants = participants.sort((a, b) => {
+      const sa = Number(a.score) || 0;
+      const sb = Number(b.score) || 0;
+      return sortDesc ? sb - sa : sa - sb;
+    });
+    // Re-assign to trigger Svelte reactivity in case sort mutated in-place
+    participants = participants.slice();
+  }
+
+  function toggleSort() {
+    sortDesc = !sortDesc;
+    sortParticipants();
   }
 
   onMount(() => {
