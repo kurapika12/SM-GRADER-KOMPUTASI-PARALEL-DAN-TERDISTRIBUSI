@@ -1,96 +1,65 @@
 <script>
-  import { onMount } from 'svelte';
-  
-  let participantId = '';
-  let loading = false;
-  let error = '';
-  let participant = null;
-
-  async function fetchParticipant() {
-    if (!participantId) {
-      error = 'Masukkan ID peserta';
-      return;
-    }
-
-    loading = true;
-    error = '';
-    
-    try {
-      // Gunakan endpoint getAnswerParticipant untuk mendapatkan semua data
-      const response = await fetch('/getAnswerParticipant');
-      if (!response.ok) throw new Error('Gagal mengambil data');
-      
-      const participants = await response.json();
-      
-      // Cari participant berdasarkan ID
-      participant = participants.find(p => p.id === participantId);
-      
-      if (!participant) {
-        error = 'Peserta tidak ditemukan';
-        participant = null;
-      }
-    } catch (err) {
-      error = err.message;
-      participant = null;
-    } finally {
-      loading = false;
-    }
-  }
+  // Data peserta yang langsung tampil untuk admin
+  const participants = [
+    { id: "001", name: "ALAM", score: 80, correct: 16, wrong: 4 },
+    { id: "002", name: "REYNALDO", score: 90, correct: 18, wrong: 2 }
+  ];
 </script>
 
-<div class="container">
-  <h2>Halaman Peserta</h2>
-  
-  <div class="input-group">
-    <label>
-      ID Peserta:
-      <input 
-        bind:value={participantId}
-        placeholder="Masukkan ID peserta"
-      />
-    </label>
-    <button on:click={fetchParticipant}>
-      Cari Data
-    </button>
+<div class="participants-container">
+  <h2>Data Peserta</h2>
+  <div class="cards">
+    {#each participants as p}
+      <div class="card">
+        <h3>{p.name}</h3>
+        <p><strong>ID:</strong> {p.id}</p>
+        <p><strong>Skor:</strong> {p.score}</p>
+        <p><strong>Jawaban Benar:</strong> {p.correct}</p>
+        <p><strong>Jawaban Salah:</strong> {p.wrong}</p>
+      </div>
+    {/each}
   </div>
-
-  {#if loading}
-    <p>Loading...</p>
-  {:else if error}
-    <p class="error">{error}</p>
-  {:else if participant}
-    <div class="result">
-      <h3>Data Peserta:</h3>
-      <p><strong>ID:</strong> {participant.id}</p>
-      <p><strong>Nama:</strong> {participant.name}</p>
-      <p><strong>Nilai:</strong> {participant.score}</p>
-    </div>
-  {/if}
 </div>
 
 <style>
-  .container {
-    max-width: 600px;
+  .participants-container {
     margin: 2rem auto;
-    padding: 1rem;
+    max-width: 700px;
+    text-align: center;
   }
-  .input-group {
-    margin: 1rem 0;
+
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
   }
-  input {
-    margin: 0 1rem;
-    padding: 0.5rem;
+
+  .card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: 15px;
+    width: 200px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    color: #000000;
+    transition: transform 0.3s, box-shadow 0.3s;
   }
-  button {
-    padding: 0.5rem 1rem;
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   }
-  .error {
-    color: red;
+
+  .card h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
   }
-  .result {
-    margin-top: 2rem;
-    padding: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+
+  .card p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
   }
 </style>
