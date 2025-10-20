@@ -1,34 +1,14 @@
-{
-  "_id": "62400515",
-  "noUjian": "62400515",
-  "name": "Riansyah Tohamba",
-  "password": "$2b$08$VGoOKde97wmcvmr/5gPX..ZBT0MjhydrBqUjyob4V45ksmf7E9x1u",
-  "image": "img_avatar.png",
-  "answers": {
-    "Math-253-06": "b",
-    "2023-PU-138": "e"
+[
+  {
+    "id": "001",
+    "name": "ALAM",
+    "score": 80,
+    "answers": { }
   },
-  "summary": {
-    "groupBySection": {
-      "KEMAMPUAN KUANTITATIF-1": {
-        "questions": {
-          "2024-Math-040": {
-            "questId": "2024-Math-040",
-            "rightAnswers": "c"
-          }
-        }
-      },
-      "PENALARAN UMUM-1": {
-        "questions": {
-          "2023-PU-134": {
-            "questId": "2023-PU-138",
-            "rightAnswers": "a"
-          }
-        }
-      }
-    }
-  },
-  "testProgram": "LKUT3L2TIDK-1-1",
-  "sectionsName": ["KEMAMPUAN KUANTITATIF-1", "PENALARAN UMUM-1"],
-  "questions": [[{ "_id": "Math-253-06" }], [{ "_id": "2023-PU-134" }]]
-}
+  {
+    "id": "002",
+    "name": "REYNALDO",
+    "score": 90,
+    "answers": { }
+  }
+]

@@ -2,7 +2,20 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Counter from './lib/Counter.svelte'
+  import Participant from './lib/Participant.svelte'
+  let view = 'home'
 </script>
+
+<nav>
+  <button on:click={() => view = 'home'}>Home</button>
+  <button on:click={() => view = 'participant'}>Halaman Peserta</button>
+</nav>
+
+{#if view === 'home'}
+  <Counter />
+{:else if view === 'participant'}
+  <Participant />
+{/if}
 
 <main>
   <div>
